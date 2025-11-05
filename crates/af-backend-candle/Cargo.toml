@@ -1,0 +1,25 @@
+[package]
+name = "af-backend-candle"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+af-core = { path = "../af-core" }
+
+# Candle 基础依赖，仅在后端层使用
+candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
+candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
+candle-transformers = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
+candle-flash-attn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1", optional = true }
+
+[features]
+default = []
+cuda = [
+    "candle-core/cuda",
+    "candle-nn/cuda",
+    "candle-transformers/cuda",
+]
+metal = ["candle-core/metal"]
+flash-attn = ["candle-flash-attn"]
+

@@ -1,0 +1,19 @@
+[workspace]
+members = [
+    "crates/af-core",
+    "crates/af-backend-candle",
+    "crates/af-ops",
+    "crates/af-runtime",
+    "crates/af-modalities",
+    "crates/af-models",
+    "crates/af-io",
+    "crates/af-tokenizer",
+    "crates/af-cli",
+    "crates/af-server",
+]
+resolver = "2"
+
+[workspace.dependencies]
+anyhow = "1.0"
+serde_json = "1.0"
+tokenizers = "0.15"

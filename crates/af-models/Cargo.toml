@@ -1,0 +1,10 @@
+[package]
+name = "af-models"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = { workspace = true }
+af-runtime = { path = "../af-runtime" }
+af-modalities = { path = "../af-modalities" }
+
