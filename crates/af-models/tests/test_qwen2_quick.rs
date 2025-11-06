@@ -18,7 +18,7 @@ fn test_quick_generation() -> Result<()> {
     let tokenizer = Tokenizer::from_file(format!("{}/tokenizer.json", model_path))?;
 
     // 简单的 prompt
-    let prompt = "Hello, Introducing Xiaomi, a company";
+    let prompt = "Hello, please introduce Xiaomi as a company.";
     let input_ids = tokenizer.encode(prompt, false)?;
     let input_tensor = Tensor::new(input_ids.as_slice(), &device)?.unsqueeze(0)?;
 
@@ -27,7 +27,7 @@ fn test_quick_generation() -> Result<()> {
 
     // 只生成 30 个 tokens
     let mut generated_ids = input_ids.clone();
-    for i in 0..30 {
+    for i in 0..200 {
         let seq_len = logits.dim(1)?;
         let last_logits = logits
             .narrow(1, seq_len - 1, 1)?

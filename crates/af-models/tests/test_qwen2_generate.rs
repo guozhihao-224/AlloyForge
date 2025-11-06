@@ -8,7 +8,7 @@ use candle_core::{DType, Device, Tensor};
 #[ignore] // 需要真实模型，使用 `-- --ignored` 运行
 fn test_qwen2_generate() -> Result<()> {
     let model_path = std::env::var("QWEN2_MODEL_PATH")
-        .unwrap_or_else(|_| "./Qwen2-0.5B".to_string());
+        .unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
 
     println!("🔧 Loading model from: {}", model_path);
 
@@ -41,7 +41,7 @@ fn test_qwen2_generate() -> Result<()> {
     // 4. Decode 循环
     println!("\n🔄 Decode stage...");
     let mut generated_ids = input_ids.clone();
-    let max_new_tokens = 30;
+    let max_new_tokens = 1000;
 
     for i in 0..max_new_tokens {
         // 获取最后一个 token 的 logits
