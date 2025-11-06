@@ -1,15 +1,10 @@
 use std::sync::Arc;
 
-use af_core::Device;
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 
-pub trait Model: Send + Sync {
-    fn reset_state(&self) {}
-    fn forward_step(&self, _input_ids: &[u32]) -> Result<Vec<f32>> {
-        anyhow::bail!("forward_step not implemented")
-    }
-}
+// Re-export core types for convenience
+pub use af_core::{Device, Model, ModelConfig};
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Request {
@@ -22,6 +17,12 @@ pub struct Request {
 pub struct SessionBuilder {
     device: Option<Arc<dyn Device>>,
     enable_flash_attn: bool,
+}
+
+impl Default for SessionBuilder {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl SessionBuilder {
@@ -42,7 +43,7 @@ impl SessionBuilder {
         self
     }
 
-    pub fn build(self, model: Arc<dyn Model>) -> Result<Session> {
+    pub fn build(self, model: Box<dyn Model>) -> Result<Session> {
         Ok(Session {
             device: self.device,
             enable_flash_attn: self.enable_flash_attn,
@@ -54,7 +55,7 @@ impl SessionBuilder {
 pub struct Session {
     device: Option<Arc<dyn Device>>,
     enable_flash_attn: bool,
-    model: Arc<dyn Model>,
+    model: Box<dyn Model>,
 }
 
 impl Session {
@@ -62,6 +63,13 @@ impl Session {
         let _device = self.device.as_ref().map(|d| d.name()).unwrap_or("cpu");
         let _flash = self.enable_flash_attn;
         self.model.reset_state();
+        
+        // TODO: Implement full generation loop
+        // 1. Tokenize prompt
+        // 2. Prefill phase
+        // 3. Decode loop with sampling
+        // 4. Decode tokens back to text
+        
         Ok(String::from("[placeholder response]"))
     }
 }

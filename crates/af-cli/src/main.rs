@@ -28,14 +28,18 @@ impl Device for DummyDevice {
 struct EchoModel;
 
 impl Model for EchoModel {
-    fn forward_step(&self, _input_ids: &[u32]) -> Result<Vec<f32>> {
-        Ok(vec![])
+    fn reset_state(&mut self) {
+        // No state to reset for echo model
+    }
+
+    fn forward_step(&mut self, _input_ids: &[u32]) -> Result<Vec<f32>> {
+        Ok(vec![0.0; 1000]) // Return dummy logits
     }
 }
 
 fn main() -> Result<()> {
     let device: Arc<dyn Device> = Arc::new(DummyDevice);
-    let model = Arc::new(EchoModel);
+    let model = Box::new(EchoModel);
     let mut session = SessionBuilder::new().device(device).build(model)?;
     let response = session.generate(Request {
         prompt: "hello".into(),

@@ -1,5 +1,5 @@
 use anyhow::Result;
-use candle_core::{D, DType, Device, Tensor};
+use candle_core::{D, DType, Device, IndexOp, Tensor};
 use candle_nn::{
     Embedding, Linear, Module, RmsNorm, VarBuilder, embedding, linear, linear_no_bias, rms_norm,
 };
@@ -459,5 +459,80 @@ impl Qwen2Model {
 
     pub fn config(&self) -> &Qwen2Config {
         &self.config
+    }
+}
+
+// ===== Model Trait Implementation =====
+
+use af_core::{Model, ModelConfig};
+
+/// Adapter to make Qwen2Model compatible with the Model trait
+pub struct Qwen2ModelWrapper {
+    model: Qwen2Model,
+    seqlen_offset: usize,
+}
+
+impl Qwen2ModelWrapper {
+    pub fn new(model: Qwen2Model) -> Self {
+        Self {
+            model,
+            seqlen_offset: 0,
+        }
+    }
+
+    pub fn from_pretrained<P: AsRef<Path>>(
+        model_dir: P,
+        dtype: DType,
+        device: &Device,
+    ) -> Result<Self> {
+        let model = Qwen2Model::from_pretrained(model_dir, dtype, device)?;
+        Ok(Self::new(model))
+    }
+
+    pub fn inner(&self) -> &Qwen2Model {
+        &self.model
+    }
+
+    pub fn inner_mut(&mut self) -> &mut Qwen2Model {
+        &mut self.model
+    }
+}
+
+impl Model for Qwen2ModelWrapper {
+    fn reset_state(&mut self) {
+        self.model.clear_kv_cache();
+        self.seqlen_offset = 0;
+    }
+
+    fn forward_step(&mut self, input_ids: &[u32]) -> Result<Vec<f32>> {
+        // 1. Convert input_ids to Tensor
+        let input_tensor = Tensor::new(input_ids, self.model.device())?
+            .unsqueeze(0)?; // Add batch dimension: [seq_len] -> [1, seq_len]
+
+        // 2. Forward pass
+        let logits = self.model.forward(&input_tensor, self.seqlen_offset)?;
+
+        // 3. Update sequence offset
+        self.seqlen_offset += input_ids.len();
+
+        // 4. Extract logits for the last token
+        // Shape: [batch, seq_len, vocab_size] -> get [0, last_pos, :]
+        let last_idx = input_ids.len() - 1;
+        let last_logits = logits.i((0, last_idx))?;
+
+        // 5. Convert to Vec<f32>
+        last_logits
+            .to_vec1::<f32>()
+            .map_err(|e| anyhow::anyhow!("Failed to convert logits to vec: {}", e))
+    }
+
+    fn config(&self) -> Option<ModelConfig> {
+        let cfg = self.model.config();
+        Some(ModelConfig {
+            vocab_size: cfg.vocab_size,
+            max_position_embeddings: cfg.max_position_embeddings,
+            hidden_size: cfg.hidden_size,
+            num_layers: cfg.num_hidden_layers,
+        })
     }
 }

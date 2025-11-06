@@ -74,10 +74,10 @@ dependencies = [
 name = "af-models"
 version = "0.1.0"
 dependencies = [
+ "af-core",
  "af-io",
  "af-modalities",
  "af-ops",
- "af-runtime",
  "af-tokenizer",
  "anyhow",
  "candle-core",

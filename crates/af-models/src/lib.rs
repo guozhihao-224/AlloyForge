@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
+use af_core::Model;
 use af_modalities::{Projector, VisionEncoder};
-use af_runtime::Model;
 use anyhow::Result;
 
 pub mod qwen2;
@@ -20,7 +20,11 @@ impl PlaceholderVisionModel {
 }
 
 impl Model for PlaceholderVisionModel {
-    fn forward_step(&self, _input_ids: &[u32]) -> Result<Vec<f32>> {
+    fn reset_state(&mut self) {
+        // No state to reset for placeholder
+    }
+
+    fn forward_step(&mut self, _input_ids: &[u32]) -> Result<Vec<f32>> {
         Ok(Vec::new())
     }
 }

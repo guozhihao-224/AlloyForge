@@ -7,7 +7,7 @@ edition = "2024"
 anyhow = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-af-runtime = { path = "../af-runtime" }
+af-core = { path = "../af-core" }
 af-modalities = { path = "../af-modalities" }
 af-io = { path = "../af-io" }
 

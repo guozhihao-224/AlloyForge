@@ -58,3 +58,38 @@ pub trait RoPEOps: Send + Sync {
         sin: &dyn Tensor,
     ) -> Result<(Box<dyn Tensor>, Box<dyn Tensor>)>;
 }
+
+// ===== Model Abstraction =====
+
+/// Core abstraction for language models
+/// 
+/// This trait defines the interface that all models must implement
+/// to be used with the runtime system.
+pub trait Model: Send + Sync {
+    /// Reset the model's internal state (e.g., KV cache)
+    fn reset_state(&mut self);
+    
+    /// Perform a forward pass for the given input token IDs
+    /// Returns the logits for the next token prediction
+    /// 
+    /// # Arguments
+    /// * `input_ids` - Input token IDs to process
+    /// 
+    /// # Returns
+    /// A vector of logits with length equal to vocab_size
+    fn forward_step(&mut self, input_ids: &[u32]) -> Result<Vec<f32>>;
+    
+    /// Get model configuration (optional, for introspection)
+    fn config(&self) -> Option<ModelConfig> {
+        None
+    }
+}
+
+/// Model configuration metadata
+#[derive(Debug, Clone)]
+pub struct ModelConfig {
+    pub vocab_size: usize,
+    pub max_position_embeddings: usize,
+    pub hidden_size: usize,
+    pub num_layers: usize,
+}
