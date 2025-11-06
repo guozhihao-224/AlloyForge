@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "accelerate-src"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "415ed64958754dbe991900f3940677e6a7eefb4d7367afd70d642677b0c7d19d"
+
+[[package]]
 name = "addr2line"
 version = "0.25.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -70,7 +76,9 @@ version = "0.1.0"
 dependencies = [
  "af-io",
  "af-modalities",
+ "af-ops",
  "af-runtime",
+ "af-tokenizer",
  "anyhow",
  "candle-core",
  "candle-flash-attn",
@@ -85,6 +93,7 @@ version = "0.1.0"
 dependencies = [
  "af-core",
  "anyhow",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -361,12 +370,14 @@ name = "candle-core"
 version = "0.9.1"
 source = "git+https://github.com/huggingface/candle.git?tag=0.9.1#cd96fa80da255e34f7b16b4ff98b6a31d557201b"
 dependencies = [
+ "accelerate-src",
  "byteorder",
  "candle-kernels",
  "candle-metal-kernels",
  "cudarc",
  "gemm 0.17.1",
  "half",
+ "libc",
  "memmap2",
  "metal 0.27.0",
  "num-traits",

@@ -8,11 +8,11 @@ use candle_core::{DType, Device, Tensor};
 #[test]
 #[ignore]
 fn test_quick_generation() -> Result<()> {
-    let model_path = std::env::var("QWEN2_MODEL_PATH")
-        .unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
+    let model_path =
+        std::env::var("QWEN2_MODEL_PATH").unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
 
     println!("⚡ Quick generation test");
-    
+
     let device = Device::Cpu;
     let mut model = Qwen2Model::from_pretrained(&model_path, DType::F32, &device)?;
     let tokenizer = Tokenizer::from_file(format!("{}/tokenizer.json", model_path))?;
@@ -29,14 +29,11 @@ fn test_quick_generation() -> Result<()> {
     let mut generated_ids = input_ids.clone();
     for i in 0..200 {
         let seq_len = logits.dim(1)?;
-        let last_logits = logits
-            .narrow(1, seq_len - 1, 1)?
-            .squeeze(0)?
-            .squeeze(0)?;
+        let last_logits = logits.narrow(1, seq_len - 1, 1)?.squeeze(0)?.squeeze(0)?;
 
         let logits_vec = last_logits.to_vec1::<f32>()?;
-        let next_token = sampling::greedy(&logits_vec)
-            .ok_or_else(|| anyhow::anyhow!("Failed to sample"))?;
+        let next_token =
+            sampling::greedy(&logits_vec).ok_or_else(|| anyhow::anyhow!("Failed to sample"))?;
 
         if Some(next_token) == tokenizer.eos_token_id() {
             break;
@@ -50,9 +47,8 @@ fn test_quick_generation() -> Result<()> {
 
     let output = tokenizer.decode(&generated_ids, true)?;
     println!("✅ Generated: {}", output);
-    
+
     assert!(generated_ids.len() > input_ids.len());
     println!("✅ Quick test passed!");
     Ok(())
 }
-

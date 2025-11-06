@@ -7,8 +7,8 @@ use candle_core::{DType, Device, Tensor};
 #[test]
 #[ignore] // 需要真实模型，使用 `-- --ignored` 运行
 fn test_qwen2_generate() -> Result<()> {
-    let model_path = std::env::var("QWEN2_MODEL_PATH")
-        .unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
+    let model_path =
+        std::env::var("QWEN2_MODEL_PATH").unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
 
     println!("🔧 Loading model from: {}", model_path);
 
@@ -26,10 +26,10 @@ fn test_qwen2_generate() -> Result<()> {
     // 2. Tokenize prompt
     let prompt = "你好";
     println!("\n🎯 Prompt: \"{}\"", prompt);
-    
+
     let input_ids = tokenizer.encode(prompt, false)?;
     println!("📝 Encoded tokens: {:?}", input_ids);
-    
+
     let input_tensor = Tensor::new(input_ids.as_slice(), &device)?.unsqueeze(0)?;
     println!("   Input shape: {:?}", input_tensor.shape());
 
@@ -47,9 +47,9 @@ fn test_qwen2_generate() -> Result<()> {
         // 获取最后一个 token 的 logits
         let seq_len = logits.dim(1)?;
         let last_logits = logits
-            .narrow(1, seq_len - 1, 1)?  // [batch, 1, vocab]
-            .squeeze(0)?                  // [1, vocab]
-            .squeeze(0)?;                 // [vocab]
+            .narrow(1, seq_len - 1, 1)? // [batch, 1, vocab]
+            .squeeze(0)? // [1, vocab]
+            .squeeze(0)?; // [vocab]
 
         // 采样下一个 token
         let logits_vec = last_logits.to_vec1::<f32>()?;
@@ -84,7 +84,10 @@ fn test_qwen2_generate() -> Result<()> {
     println!("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
     println!("\n📊 Stats:");
     println!("   Input tokens: {}", input_ids.len());
-    println!("   Generated tokens: {}", generated_ids.len() - input_ids.len());
+    println!(
+        "   Generated tokens: {}",
+        generated_ids.len() - input_ids.len()
+    );
     println!("   Total tokens: {}", generated_ids.len());
 
     // 验证生成了新内容
@@ -92,7 +95,10 @@ fn test_qwen2_generate() -> Result<()> {
         generated_ids.len() > input_ids.len(),
         "Model should generate new tokens"
     );
-    assert!(output.len() >= prompt.len(), "Output should not be shorter than input");
+    assert!(
+        output.len() >= prompt.len(),
+        "Output should not be shorter than input"
+    );
 
     println!("\n✅ Test passed!");
     Ok(())
@@ -101,8 +107,8 @@ fn test_qwen2_generate() -> Result<()> {
 #[test]
 #[ignore]
 fn test_qwen2_generate_english() -> Result<()> {
-    let model_path = std::env::var("QWEN2_MODEL_PATH")
-        .unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
+    let model_path =
+        std::env::var("QWEN2_MODEL_PATH").unwrap_or_else(|_| "./../../Qwen2-0.5B".to_string());
 
     println!("🔧 Loading model from: {}", model_path);
 
@@ -126,14 +132,11 @@ fn test_qwen2_generate_english() -> Result<()> {
     let mut generated_ids = input_ids.clone();
     for i in 0..50 {
         let seq_len = logits.dim(1)?;
-        let last_logits = logits
-            .narrow(1, seq_len - 1, 1)?
-            .squeeze(0)?
-            .squeeze(0)?;
+        let last_logits = logits.narrow(1, seq_len - 1, 1)?.squeeze(0)?.squeeze(0)?;
 
         let logits_vec = last_logits.to_vec1::<f32>()?;
-        let next_token = sampling::greedy(&logits_vec)
-            .ok_or_else(|| anyhow::anyhow!("Failed to sample"))?;
+        let next_token =
+            sampling::greedy(&logits_vec).ok_or_else(|| anyhow::anyhow!("Failed to sample"))?;
 
         if Some(next_token) == tokenizer.eos_token_id() {
             break;
@@ -152,4 +155,3 @@ fn test_qwen2_generate_english() -> Result<()> {
     println!("\n✅ English generation test passed!");
     Ok(())
 }
-

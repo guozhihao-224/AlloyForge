@@ -6,11 +6,11 @@ use std::path::{Path, PathBuf};
 /// 查找目录下的所有 safetensors 文件
 pub fn find_safetensors_files<P: AsRef<Path>>(dir: P) -> Result<Vec<PathBuf>> {
     let mut files = Vec::new();
-    
+
     for entry in std::fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
-        
+
         if path.is_file() {
             if let Some(ext) = path.extension() {
                 if ext == "safetensors" {
@@ -19,19 +19,19 @@ pub fn find_safetensors_files<P: AsRef<Path>>(dir: P) -> Result<Vec<PathBuf>> {
             }
         }
     }
-    
+
     // 排序以保证一致的加载顺序
     files.sort();
     Ok(files)
 }
 
 /// 使用 mmap 加载 safetensors 权重文件
-/// 
+///
 /// # Example
 /// ```no_run
 /// use af_io::load_safetensors_mmap;
 /// use candle_core::{DType, Device};
-/// 
+///
 /// let device = Device::Cpu;
 /// let vb = load_safetensors_mmap(&["model.safetensors"], DType::F32, &device)?;
 /// # Ok::<(), anyhow::Error>(())
@@ -41,9 +41,7 @@ pub fn load_safetensors_mmap<'a>(
     dtype: DType,
     device: &'a Device,
 ) -> Result<VarBuilder<'a>> {
-    unsafe {
-        Ok(VarBuilder::from_mmaped_safetensors(paths, dtype, device)?)
-    }
+    unsafe { Ok(VarBuilder::from_mmaped_safetensors(paths, dtype, device)?) }
 }
 
 // Note: 由于生命周期限制，用户需要自己调用 find_safetensors_files + load_safetensors_mmap

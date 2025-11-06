@@ -9,48 +9,48 @@ use std::path::Path;
 pub struct Qwen2Config {
     /// 隐藏层大小
     pub hidden_size: usize,
-    
+
     /// FFN 中间层大小
     pub intermediate_size: usize,
-    
+
     /// 注意力头数量
     pub num_attention_heads: usize,
-    
+
     /// Transformer 层数
     pub num_hidden_layers: usize,
-    
+
     /// KV 头数量（用于 GQA）
     pub num_key_value_heads: usize,
-    
+
     /// RMSNorm epsilon
     pub rms_norm_eps: f64,
-    
+
     /// RoPE theta
     pub rope_theta: f32,
-    
+
     /// 词表大小
     pub vocab_size: usize,
-    
+
     /// 激活函数
     #[serde(default = "default_hidden_act")]
     pub hidden_act: Activation,
-    
+
     /// 最大位置编码长度
     #[serde(default = "default_max_position_embeddings")]
     pub max_position_embeddings: usize,
-    
+
     /// 是否共享 embedding 和 lm_head 权重
     #[serde(default = "default_tie_word_embeddings")]
     pub tie_word_embeddings: bool,
-    
+
     /// BOS token ID
     #[serde(default)]
     pub bos_token_id: Option<u32>,
-    
+
     /// EOS token ID
     #[serde(default)]
     pub eos_token_id: Option<u32>,
-    
+
     /// 数据类型（用于推断）
     #[serde(default)]
     pub torch_dtype: Option<String>,
@@ -75,12 +75,12 @@ impl Qwen2Config {
         let config: Self = serde_json::from_slice(&config_str)?;
         Ok(config)
     }
-    
+
     /// 获取每个注意力头的维度
     pub fn head_dim(&self) -> usize {
         self.hidden_size / self.num_attention_heads
     }
-    
+
     /// 获取 KV 头的分组数（用于 GQA）
     pub fn num_kv_groups(&self) -> usize {
         self.num_attention_heads / self.num_key_value_heads
@@ -110,9 +110,8 @@ mod tests {
             eos_token_id: Some(151645),
             torch_dtype: Some("bfloat16".to_string()),
         };
-        
-        assert_eq!(config.head_dim(), 64);  // 896 / 14 = 64
-        assert_eq!(config.num_kv_groups(), 7);  // 14 / 2 = 7 (GQA)
+
+        assert_eq!(config.head_dim(), 64); // 896 / 14 = 64
+        assert_eq!(config.num_kv_groups(), 7); // 14 / 2 = 7 (GQA)
     }
 }
-
