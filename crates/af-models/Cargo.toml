@@ -16,6 +16,10 @@ candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.
 candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
 candle-flash-attn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1", optional = true }
 
+[dev-dependencies]
+af-ops = { path = "../af-ops" }
+af-tokenizer = { path = "../af-tokenizer" }
+
 [features]
 flash-attn = ["candle-flash-attn"]
 

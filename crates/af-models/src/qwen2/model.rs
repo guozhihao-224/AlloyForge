@@ -1,6 +1,6 @@
 use anyhow::Result;
 use candle_core::{DType, Device, Tensor, D};
-use candle_nn::{embedding, linear, rms_norm, Embedding, Linear, Module, RmsNorm, VarBuilder};
+use candle_nn::{embedding, linear, linear_no_bias, rms_norm, Embedding, Linear, Module, RmsNorm, VarBuilder};
 use std::path::Path;
 
 use super::config::Qwen2Config;
@@ -103,9 +103,9 @@ impl Qwen2MLP {
         let hidden_size = config.hidden_size;
         let intermediate_size = config.intermediate_size;
         
-        let gate_proj = linear(hidden_size, intermediate_size, vb.pp("gate_proj"))?;
-        let up_proj = linear(hidden_size, intermediate_size, vb.pp("up_proj"))?;
-        let down_proj = linear(intermediate_size, hidden_size, vb.pp("down_proj"))?;
+        let gate_proj = linear_no_bias(hidden_size, intermediate_size, vb.pp("gate_proj"))?;
+        let up_proj = linear_no_bias(hidden_size, intermediate_size, vb.pp("up_proj"))?;
+        let down_proj = linear_no_bias(intermediate_size, hidden_size, vb.pp("down_proj"))?;
         
         Ok(Self {
             gate_proj,
@@ -152,7 +152,7 @@ impl Qwen2Attention {
         let q_proj = linear(hidden_size, num_heads * head_dim, vb.pp("q_proj"))?;
         let k_proj = linear(hidden_size, num_kv_heads * head_dim, vb.pp("k_proj"))?;
         let v_proj = linear(hidden_size, num_kv_heads * head_dim, vb.pp("v_proj"))?;
-        let o_proj = linear(num_heads * head_dim, hidden_size, vb.pp("o_proj"))?;
+        let o_proj = linear_no_bias(num_heads * head_dim, hidden_size, vb.pp("o_proj"))?;
         
         Ok(Self {
             q_proj,
@@ -368,7 +368,7 @@ impl Qwen2Model {
             // 共享 embedding 和 lm_head 权重
             Linear::new(embed_tokens.embeddings().clone(), None)
         } else {
-            linear(config.hidden_size, config.vocab_size, vb.pp("lm_head"))?
+            linear_no_bias(config.hidden_size, config.vocab_size, vb.pp("lm_head"))?
         };
         
         let rotary_emb = RotaryEmbedding::new(
