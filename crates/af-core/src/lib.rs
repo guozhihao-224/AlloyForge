@@ -1,4 +1,5 @@
 use anyhow::Result;
+use std::any::Any;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum DType {
@@ -14,6 +15,7 @@ pub trait Device: Send + Sync {
     fn name(&self) -> &'static str;
     fn is_gpu(&self) -> bool;
     fn clone_box(&self) -> Box<dyn Device>;
+    fn as_any(&self) -> &dyn Any;
 }
 
 impl Clone for Box<dyn Device> {
@@ -28,6 +30,7 @@ pub trait Tensor: Send + Sync {
     fn device(&self) -> &dyn Device;
     fn to_device(&self, dev: &dyn Device) -> Result<Box<dyn Tensor>>;
     fn to_dtype(&self, dt: DType) -> Result<Box<dyn Tensor>>;
+    fn as_any(&self) -> &dyn Any;
 }
 
 pub trait MatmulOps: Send + Sync {

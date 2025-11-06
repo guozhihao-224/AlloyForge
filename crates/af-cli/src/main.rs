@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::sync::Arc;
 
 use af_core::Device;
@@ -17,6 +18,10 @@ impl Device for DummyDevice {
 
     fn clone_box(&self) -> Box<dyn Device> {
         Box::new(DummyDevice)
+    }
+
+    fn as_any(&self) -> &dyn Any {
+        self
     }
 }
 
