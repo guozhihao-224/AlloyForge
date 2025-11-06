@@ -4,6 +4,8 @@ use af_modalities::{Projector, VisionEncoder};
 use af_runtime::Model;
 use anyhow::Result;
 
+pub mod qwen2;
+
 pub struct PlaceholderVisionModel {
     #[allow(dead_code)]
     vision: Arc<dyn VisionEncoder>,

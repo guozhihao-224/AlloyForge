@@ -5,6 +5,17 @@ edition = "2024"
 
 [dependencies]
 anyhow = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 af-runtime = { path = "../af-runtime" }
 af-modalities = { path = "../af-modalities" }
+af-io = { path = "../af-io" }
+
+# Candle 依赖（从 af-backend-candle 传递）
+candle-core = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
+candle-nn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1" }
+candle-flash-attn = { git = "https://github.com/huggingface/candle.git", version = "0.9.1", tag = "0.9.1", optional = true }
+
+[features]
+flash-attn = ["candle-flash-attn"]
 

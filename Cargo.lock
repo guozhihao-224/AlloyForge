@@ -50,6 +50,8 @@ name = "af-io"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "candle-core",
+ "candle-nn",
  "serde",
  "serde_json",
 ]
@@ -66,9 +68,15 @@ dependencies = [
 name = "af-models"
 version = "0.1.0"
 dependencies = [
+ "af-io",
  "af-modalities",
  "af-runtime",
  "anyhow",
+ "candle-core",
+ "candle-flash-attn",
+ "candle-nn",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
